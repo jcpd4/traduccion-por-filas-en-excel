@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        background-color: #f9f9f9;
+        color: #333;
+      }
+
+      h3 {
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        resize: vertical;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: white;
+      }
+
+      .botones-idiomas {
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .botones-idiomas button {
+        padding: 6px 12px;
+        margin: 4px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: #ffffff;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .botones-idiomas button:hover {
+        background-color: #e8e8e8;
+      }
+
+      .acciones {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      #spinner {
+        display: none;
+        margin-top: 10px;
+        font-size: 13px;
+        color: #777;
+      }
+
+      .spinner-icon {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #ccc;
+        border-top-color: #555;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 6px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Traducir fila seleccionada</h3>
+    <p>Idiomas destino (uno por línea, en orden):</p>
+    <div class="botones-idiomas">
+      <button onclick="agregar('ES')">ES</button>
+      <button onclick="agregar('DE')">DE</button>
+      <button onclick="agregar('UK')">UK</button>
+      <button onclick="agregar('FR')">FR</button>
+      <button onclick="agregar('FR')">FR/BE</button>
+      <button onclick="agregar('IT')">IT</button>
+      <button onclick="agregar('NL')">NL</button>
+      <button onclick="agregar('PL')">PL</button>
+      <button onclick="agregar('SE')">SE</button>
+    </div>
+    <textarea id="idiomas" rows="6" placeholder="Ej: FR&#10;DE&#10;UK"></textarea>
+
+    <div class="acciones">
+      <button onclick="enviar()">Traducir</button>
+      <div id="spinner">
+        <span class="spinner-icon"></span> Calma Rodrigo, calma...
+      </div>
+    </div>
+
+    <script>
+      function agregar(idioma) {
+        const textarea = document.getElementById("idiomas");
+        const lineas = textarea.value.split('\n').map(i => i.trim()).filter(i => i !== "");
+        if (!lineas.includes(idioma)) {
+          textarea.value = [...lineas, idioma].join('\n');
+        }
+      }
+
+      function enviar() {
+        const spinner = document.getElementById("spinner");
+        spinner.style.display = "block";
+
+        const idiomasTexto = document.getElementById("idiomas").value;
+        const idiomasArray = idiomasTexto
+          .split('\n')
+          .map(i => i.trim())
+          .filter(i => i !== "");
+
+        if (idiomasArray.length === 0) {
+          alert("Introduce al menos un idioma.");
+          spinner.style.display = "none";
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(msg => {
+            //alert(msg);
+            google.script.host.close();
+          })
+          .procesarTraduccionesGemini({ idiomas: idiomasArray });
+      }
+    </script>
+  </body>
+</html>
